@@ -285,10 +285,6 @@ def server_error(e):
     return redirect(url_for('index'))
 
 
-# Vercel compatibility
-def handler(request):
-    return app(request.environ, lambda status, headers: None)
-
 if __name__ == "__main__":
     print("🔐 Cyberpunk Neural Encryptor Starting...")
     print("🌐 Access at: http://localhost:5000")

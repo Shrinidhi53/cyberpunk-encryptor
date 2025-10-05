@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk File Encryptor - Neural Network Security</title>
+    <style>
+        /* Import Advanced Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+        /* CSS Variables for Dynamic Theming */
+        :root {
+            --primary-cyan: #00ffff;
+            --primary-magenta: #ff00ff;
+            --accent-blue: #0080ff;
+            --accent-red: #ff4b5c;
+            --accent-green: #00ff80;
+            --bg-dark: #0a0a0f;
+            --bg-darker: #050508;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-glow: 0 0 10px currentColor;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                       radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                       radial-gradient(circle at 40% 40%, rgba(0, 128, 255, 0.05) 0%, transparent 50%),
+                       linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #1a1a2e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+            animation: backgroundPulse 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundPulse {
+            0% { filter: hue-rotate(0deg) brightness(1); }
+            100% { filter: hue-rotate(30deg) brightness(1.1); }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(0, 255, 255, 0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255, 0, 255, 0.2), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(0, 255, 128, 0.2), transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: floatingParticles 20s linear infinite;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        @keyframes floatingParticles {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-title {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 60px;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-magenta), var(--accent-blue));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite, titleGlow 2s ease-in-out infinite alternate;
+            position: relative;
+            letter-spacing: 3px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes titleGlow {
+            0% { filter: drop-shadow(0 0 20px var(--primary-cyan)); }
+            100% { filter: drop-shadow(0 0 40px var(--primary-magenta)); }
+        }
+
+        .subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            text-align: center;
+            letter-spacing: 2px;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .flash-messages {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .flash-message {
+            background: linear-gradient(45deg, var(--accent-red), #ff7675);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(255, 75, 92, 0.3);
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .flash-message.success {
+            background: linear-gradient(45deg, var(--accent-green), #00d084);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(0, 255, 128, 0.3);
+        }
+
+        @keyframes slideInRight {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 50px;
+            perspective: 1000px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.6s; }
+        .card:nth-child(2) { animation-delay: 0.8s; }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.8s;
+        }
+
+        .card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            border-color: var(--primary-cyan);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 50px rgba(0, 255, 255, 0.2);
+        }
+
+        .card.decrypt-card:hover {
+            border-color: var(--primary-magenta);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 50px rgba(255, 0, 255, 0.2);
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .encrypt-card h3 {
+            color: var(--primary-cyan);
+            text-shadow: var(--text-glow);
+        }
+
+        .decrypt-card h3 {
+            color: var(--primary-magenta);
+            text-shadow: var(--text-glow);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: block;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary-cyan);
+            transform: scale(1.02);
+        }
+
+        .decrypt-card .file-input-wrapper:hover {
+            border-color: var(--primary-magenta);
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+
+        .file-input-label {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+        }
+
+        .file-input-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+            opacity: 0.6;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'Rajdhani', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="password"]:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary-magenta);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        input[type="password"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+
+        .encryption-info {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+        }
+
+        .encryption-info p {
+            color: var(--primary-cyan);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 18px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1;
+        }
+
+        .encrypt-btn {
+            background: linear-gradient(45deg, var(--primary-cyan), var(--accent-blue));
+            color: #000;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .encrypt-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .decrypt-btn {
+            background: linear-gradient(45deg, var(--primary-magenta), #ff6b8a);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.3);
+        }
+
+        .decrypt-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 0, 255, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .result-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            padding: 60px 40px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            animation: resultSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 50px;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--primary-cyan), transparent, var(--primary-magenta), transparent);
+            animation: rotate 4s linear infinite;
+            z-index: -1;
+        }
+
+        .result-card::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--bg-dark);
+            border-radius: 27px;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes resultSlideIn {
+            0% { opacity: 0; transform: translateY(50px) scale(0.9); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, var(--accent-red), #ff7675);
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 75, 92, 0.4);
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent-green), var(--primary-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
+        .download-link {
+            display: inline-block;
+            padding: 20px 40px;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--accent-blue));
+            color: #000;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            word-break: break-all;
+        }
+
+        .download-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4);
+            filter: brightness(1.2);
+        }
+
+        .password-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .password-label {
+            font-size: 1.3rem;
+            color: var(--primary-magenta);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .password-display {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--accent-green);
+            word-break: break-all;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, var(--primary-magenta), #ff6b8a);
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 255, 0.4);
+        }
+
+        .loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 0 10px;
+            }
+            .card { padding: 30px 20px; }
+            .main-title {
+                font-size: 2.5rem;
+                margin-bottom: 40px;
+            }
+            .subtitle { font-size: 1rem; }
+            .result-card {
+                padding: 40px 25px;
+                margin: 0 10px;
+            }
+            .flash-messages {
+                top: 20px;
+                right: 20px;
+                left: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+            .card h3 { font-size: 1.5rem; }
+            .action-btn {
+                padding: 15px 25px;
+                font-size: 1rem;
+            }
+            .file-input-wrapper { padding: 20px 15px; }
+            .file-input-icon { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Flash Messages -->
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Enhanced Title Section -->
+        <h1 class="main-title">🔐 NEURAL ENCRYPTOR</h1>
+        <p class="subtitle">Advanced Quantum-Level File Security System</p>
+
+        <!-- Result Card (shown when there's a result) -->
+        {% if result %}
+        <div id="resultCard" class="result-card">
+            <button class="back-btn" onclick="goBack()">⬅ Return</button>
+            <h3 class="result-title">
+                {% if result.type == 'encrypted' %}
+                    🔒 File Successfully Encrypted!
+                {% else %}
+                    🔓 File Successfully Decrypted!
+                {% endif %}
+            </h3>
+            <a href="{{ url_for('download', filename=result.filename) }}" download class="download-link">
+                📥 Download {{ result.filename }}
+            </a>
+            {% if result.password %}
+            <div class="password-container">
+    <h4 class="password-label">🔑 Your Secret Key:</h4>
+    <div id="passwordText" class="password-display">{{ result.password }}</div>
+    <button id="copyBtn" class="copy-btn">📋 Copy Key</button>
+</div>
+
+            {% endif %}
+        </div>
+        {% else %}
+        <!-- Main Interface -->
+        <div id="mainInterface" class="cards-container">
+            <!-- Encryption Card -->
+            <div class="card encrypt-card">
+                <h3>🛡️ Encrypt File</h3>
+                <form action="{{ url_for('process') }}" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="file-input-wrapper">
+                            <span class="file-input-icon">📁</span>
+                            <span class="file-input-label">Drop file here or click to browse</span>
+                            <input type="file" name="file" required>
+                        </label>
+                    </div>
+                    <div class="encryption-info">
+                        <p>🔐 A secure password will be automatically generated for your file</p>
+                    </div>
+                    <button type="submit" name="action" value="encrypt" class="action-btn encrypt-btn">
+                        🔒 Initiate Encryption
+                    </button>
+                </form>
+            </div>
+
+            <!-- Decryption Card -->
+            <div class="card decrypt-card">
+                <h3>🔓 Decrypt File</h3>
+                <form action="{{ url_for('process') }}" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="file-input-wrapper">
+                            <span class="file-input-icon">🔐</span>
+                            <span class="file-input-label">Select encrypted file (.enc)</span>
+                            <input type="file" name="file" required>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="key" placeholder="🔑 Enter decryption key" required>
+                    </div>
+                    <button type="submit" name="action" value="decrypt" class="action-btn decrypt-btn">
+                        🔓 Begin Decryption
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Enhanced file input handling
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const wrapper = this.closest('.file-input-wrapper');
+                const label = wrapper.querySelector('.file-input-label');
+                
+                if (this.files.length > 0) {
+                    label.textContent = `Selected: ${this.files[0].name}`;
+                    wrapper.style.borderColor = 'var(--accent-green)';
+                    wrapper.style.background = 'rgba(0, 255, 128, 0.1)';
+                } else {
+                    label.textContent = wrapper.closest('.encrypt-card') ? 
+                        'Drop file here or click to browse' : 
+                        'Select encrypted file (.enc)';
+                    wrapper.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                    wrapper.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+            });
+        });
+
+        // Drag and drop enhancement
+        document.querySelectorAll('.file-input-wrapper').forEach(wrapper => {
+            wrapper.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                wrapper.style.borderColor = 'var(--accent-green)';
+                wrapper.style.background = 'rgba(0, 255, 128, 0.1)';
+                wrapper.style.transform = 'scale(1.05)';
+            });
+
+            wrapper.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                wrapper.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                wrapper.style.background = 'rgba(255, 255, 255, 0.05)';
+                wrapper.style.transform = 'scale(1)';
+            });
+
+            wrapper.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const input = wrapper.querySelector('input[type="file"]');
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                wrapper.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                wrapper.style.background = 'rgba(255, 255, 255, 0.05)';
+                wrapper.style.transform = 'scale(1)';
+            });
+        });
+
+        // Form submission with loading states
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const button = this.querySelector('.action-btn');
+                button.classList.add('loading');
+                
+                // Don't disable the button to preserve form data
+                // button.disabled = true;
+                
+                const originalText = button.textContent;
+                button.textContent = 'Processing...';
+            });
+        });
+
+        // Go back function
+        function goBack() {
+            window.location.href = '{{ url_for("index") }}';
+        }
+
+        // Copy password function
+       document.addEventListener("DOMContentLoaded", () => {
+    const copyBtn = document.getElementById("copyBtn");
+    if (copyBtn) {
+        copyBtn.addEventListener("click", () => {
+            const password = document.getElementById("passwordText").innerText.trim();
+            navigator.clipboard.writeText(password).then(() => {
+                showNotification("Password copied to clipboard!", "success");
+            }).catch(() => {
+                // fallback
+                const textArea = document.createElement("textarea");
+                textArea.value = password;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                showNotification("Password copied to clipboard!", "success");
+            });
+        });
+    }
+});
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `flash-message ${type}`;
+            notification.textContent = message;
+            
+            const flashContainer = document.querySelector('.flash-messages');
+            flashContainer.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Auto-hide flash messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateX(100%)';
+                    setTimeout(() => message.remove(), 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
